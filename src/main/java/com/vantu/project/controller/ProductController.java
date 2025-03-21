@@ -19,11 +19,6 @@ public class ProductController {
     @Autowired
     private ProductService productService;
     
-    @GetMapping("/test")
-    public String test() {
-    	return "test";
-    }
-    
     // 1. Lấy tất cả danh mục
     @GetMapping("/categories")
     public List<Category> getAllCategories() {

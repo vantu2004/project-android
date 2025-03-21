@@ -17,38 +17,42 @@ public class AuthController {
 
 	private final UserService userService;
 
-	@GetMapping("/test")
-	public String getTestPage() {
-		return "Test Success!";
-	}
-
-	@PostMapping("/register")
-	public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
-		RegisterResponse registerResponse = userService.register(registerRequest);
-		return new ResponseEntity<>(registerResponse, HttpStatus.CREATED);
-	}
-
-	@PostMapping("/verify")
-	public ResponseEntity<?> verifyUser(@RequestParam String email, @RequestParam String otp) {
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
 		try {
-			userService.verify(email, otp);
-			return new ResponseEntity<>("User verified successfully", HttpStatus.OK);
+			Users users = userService.login(email, password);
+			return new ResponseEntity<>(users, HttpStatus.OK);
 		} catch (RuntimeException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
-		Users users = userService.login(email, password);
-		return new ResponseEntity<>(users, HttpStatus.OK);
+	@PostMapping("/register")
+	public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+	    try {
+	        RegisterResponse registerResponse = userService.register(registerRequest);
+	        return new ResponseEntity<>(registerResponse, HttpStatus.CREATED);
+	    } catch (RuntimeException e) {
+	        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+	    }
+	}
+
+	@PostMapping("/verify")
+	public ResponseEntity<String> verifyUser(@RequestParam String email, @RequestParam String otp) {
+	    try {
+	        userService.verify(email, otp);
+	        return ResponseEntity.ok("User verified successfully");
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	    }
 	}
 
 	@PostMapping("/forgot")
 	public ResponseEntity<?> sendResetPasswordOtp(@RequestParam String email) {
 		try {
 			userService.sendResetPasswordOtp(email);
-			return new ResponseEntity<>("Da gui ma OTP ve mail cua ban, vui long kiem tra", HttpStatus.OK);
+			return new ResponseEntity<>("The OTP code has been sent to your email. Please check your inbox.",
+					HttpStatus.OK);
 		} catch (RuntimeException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
